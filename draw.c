@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "ml6.h"
 #include "display.h"
@@ -19,6 +20,17 @@
 void add_circle( struct matrix * points,
                  double cx, double cy, double cz,
                  double r, double step ) {
+  double i;
+  double x; 
+  double y;
+  double z;
+  for(i = 0; i < 1; i+= step){
+    x = cx + r * cos(2 * M_PI * i);
+    y = cy + r * sin(2 * M_PI * i);
+    z = cz;
+    add_edge(points, x, y, z, cx + r * cos(2 * M_PI * (i + step)), cy + r * sin(2 * M_PI * (i + step)), cz);
+  }
+    
 }
 
 /*======== void add_curve() ==========
@@ -45,6 +57,35 @@ void add_curve( struct matrix *points,
                 double x2, double y2, 
                 double x3, double y3, 
                 double step, int type ) {
+  struct matrix * xvalue = generate_curve_coefs(x0, x1, x2, x3, type);
+  struct matrix * yvalue = generate_curve_coefs(y0, y1, y2, y3, type);
+  //printf("got here \n");
+
+  double a0 = xvalue->m[0][0];
+  double b0 = xvalue->m[1][0];
+  double c0 = xvalue->m[2][0];
+  double d0 = xvalue->m[3][0];
+
+  double a1 = yvalue->m[0][0];
+  double b1 = yvalue->m[1][0];
+  double c1 = yvalue->m[2][0];
+  double d1 = yvalue->m[3][0];
+
+  double xinit = x0;
+  double yinit = y0;
+
+  double xhold;
+  double yhold;
+
+  double i;
+  for(i = 0; i < 1; i += step){
+    //printf("in loop \n");
+    xhold = a0 * pow(i, 3) + b0 * pow(i, 2) + c0 * i + d0;
+    yhold = a1 * pow(i, 3) + b1 * pow(i, 2) + c1 * i + d1;
+    add_edge(points, xinit, yinit, 0, xhold, yhold, 0);
+    xinit = xhold;
+    yinit = yhold;
+  }
 }
 
 
